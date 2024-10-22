@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Demo";
+}
+@model PersonalWebsite.Models.DemoViewModel
+
+<h2>ORM 語法查詢優化 Demo</h2>
+
+<!-- Bootstrap Tabs -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="n-plus-one-tab" data-bs-toggle="tab" href="#n-plus-one" role="tab" aria-controls="n-plus-one" aria-selected="true">N+1 Problem 查詢（效能較差）</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="optimized-tab" data-bs-toggle="tab" href="#optimized" role="tab" aria-controls="optimized" aria-selected="false">優化後查詢</a>
+    </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+    <!-- N+1問題查詢 -->
+    <div class="tab-pane fade show active" style="margin-bottom: 1rem;" id="n-plus-one" role="tabpanel" aria-labelledby="n-plus-one-tab">
+        <form asp-action="GetCartItemsNPlusOne" method="post">
+            <div class="input-group mt-3">
+                <input type="text" name="userId" class="form-control" placeholder="輸入要查詢的user id (1-100)，您的id是777"/>
+                <button type="submit" class="btn btn-primary" style="margin-left: 1rem;">查詢</button>
+            </div>
+        </form>
+        
+        @if (TempData["ElapsedTimeNPlusOne"] != null)
+        {
+            <p>執行時間: @TempData["ElapsedTimeNPlusOne"] 毫秒</p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>產品 ID</th>
+                        <th>產品名稱</th>
+                        <th>數量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.CartItems != null && Model.CartItems.Count > 0)
+                    {
+                    foreach (var item in Model.CartItems)
+                    {
+                    <tr>
+                        <td>@item.ProductId</td>
+                        <td>@item.ProductName</td>
+                        <td>@item.Quantity</td>
+                    </tr>
+                    }
+                    }
+                    else
+                    {
+                    <tr>
+                        <td colspan="3">尚未查詢任何項目。</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <!-- 優化後查詢 -->
+    <div class="tab-pane fade" id="optimized" role="tabpanel" aria-labelledby="optimized-tab">
+        <form asp-action="GetCartItemsOptimized" method="post">
+            <div class="input-group mt-3">
+                <input type="text" name="userId" class="form-control" placeholder="輸入要查詢的user id (1-100)，您的id是777"/>
+                <button type="submit" class="btn btn-primary" style="margin-left: 1rem;">查詢</button>
+            </div>
+        </form>
+        
+        @if (TempData["ElapsedTimeOptimized"] != null)
+        {
+            <p>執行時間: @TempData["ElapsedTimeOptimized"] 毫秒</p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>產品 ID</th>
+                        <th>產品名稱</th>
+                        <th>數量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.CartItems != null && Model.CartItems.Count > 0)
+                    {
+                    foreach (var item in Model.CartItems)
+                    {
+                    <tr>
+                        <td>@item.ProductId</td>
+                        <td>@item.ProductName</td>
+                        <td>@item.Quantity</td>
+                    </tr>
+                    }
+                    }
+                    else
+                    {
+                    <tr>
+                        <td colspan="3">尚未查詢任何項目。</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    </div>
+</div>
+
+<!-- Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript to retain the active tab -->
+<script>
+    // 儲存當前的 Tab 到 localStorage
+    $(document).ready(function () {
+        // 如果有儲存的 tab id，就激活它
+        var activeTab = localStorage.getItem('activeTab');
+        if (activeTab) {
+            $('#myTab a[href="' + activeTab + '"]').tab('show');
+        }
+
+        // 當點擊 Tab 時，儲存該 Tab 的 href
+        $('#myTab a').on('shown.bs.tab', function (e) {
+            var tabID = $(e.target).attr('href');
+            localStorage.setItem('activeTab', tabID);
+        });
+    });
+</script>
+

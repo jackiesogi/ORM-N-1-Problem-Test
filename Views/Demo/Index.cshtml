@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Demo";
+}
+@model PersonalWebsite.Models.DemoViewModel
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡易購物系統的ORM資料提取效能實驗</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-left: 5px solid #ccc;
+            overflow: auto;
+        }
+        a {
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <div class="card shadow" style="padding: 3rem;">
+        <div class="card-body">
+            <h1>簡易購物系統的ORM資料提取效能實驗</h1>
+            <img src="img/demo.png" alt="購物系統縮圖" class="img-fluid">
+            
+            <h3>測試步驟</h3>
+            <ol>
+                <li>預設的使用者是"Guest"，id 是 777。</li>
+                <li>以 id = 777 的身分，前往 <a href="@Url.Action("Amazon", "Demo")">Fake Amazon 首頁</a> 進行購物。</li>
+                <li>挑選想要的物品，選擇數量之後點選「加入購物車」。</li>
+                <li>前往 <a href="@Url.Action("SearchCartByUser", "Demo")">購物車查詢頁面</a> ，點選「N+1查詢」並輸入777來測試 N+1 方法的查詢，你會看到你剛剛挑選的商品，以及對應的執行時間。</li>
+                <li>前往 <a href="@Url.Action("SearchCartByUser", "Demo")">購物車查詢頁面</a> ，點選「優化後查詢」並輸入777來測試 Optimized 方法的查詢，你會看到你剛剛挑選的商品，以及對應的執行時間。</li>
+                <li>你也可以在 <a href="@Url.Action("SearchCartByUser", "Demo")">購物車查詢頁面</a> 中查詢其他使用者的購物車（目前使用者id有1至100），並觀察兩種方式的執行時間。</li>
+            </ol>
+
+            <br>
+
+            <h3>目的</h3>
+            <p>本實驗旨在測試 ORM 語法可能造成的效能問題，特別是針對 N+1 問題的查詢效能。我們希望通過比較兩種不同的查詢方法，來評估在不同情境下的效能差異。</p>
+            <br>
+
+            <h3>實驗設計</h3>
+            <p>為了測試 N+1 問題所帶來的效能問題，我們將實驗的關注點放在「查詢各使用者的購物車內商品」的速度。</p>
+            <p>我們設計了兩個 Handler，其中 <code>GetCartItemsNPlusOne()</code> 代表著效能較差的查詢方式。該方法實現了常見的 N+1 的查詢問題，在每次查詢商品名稱時都會發出額外的資料庫請求。而 <code>GetCartItemsOptimized()</code> 則使用了更有效率的查詢方法，透過一次性載入所有相關資料，避免了多次查詢。</p>
+
+            <br>
+            <h3>原始碼</h3>
+            <ul>
+                <li><code>GetCartItemsNPlusOne()</code> 的原始碼位置：<a href="#">N+1 Problem 原始碼</a></li>
+                <li><code>GetCartItemsOptimized()</code> 的原始碼位置：<a href="#">Optimized 原始碼</a></li>
+            </ul>
+
+            <br>
+            <h3>效能比較</h3>
+            <ol>
+                <li><strong>N+1 問題的影響</strong>：
+                    <p>在 <code>GetCartItemsNPlusOne()</code> 方法中，首先載入指定使用者的資料及其所有購物車項目。接著，對於每一個購物車項目，該方法會再次查詢資料庫來獲取對應產品的名稱。這種做法導致了 N+1 問題，即第一次查詢載入了 N 個項目，但接下來又需要對每個項目發出額外的查詢。總計會產生 N+1 次查詢，這在資料量大的情況下會顯著增加資料庫的負擔和查詢延遲，造成整體效能下降。</p>
+                </li>
+                <li><strong>優化查詢的效益</strong>：
+                    <p>相較之下，<code>GetCartItemsOptimized()</code> 在單一查詢中使用了 <code>Include()</code> 方法來同時載入所有購物車項目及其關聯的產品資料。這樣可以透過一次查詢取得所需的所有資訊，避免了多次的資料庫請求，大幅減少了查詢的執行時間和資源消耗。</p>
+                </li>
+            </ol>
+            <br>
+
+            <h3>效能衡量方式</h3>
+            <p>在進行效能測試時，我們使用了 <code>Stopwatch</code> 類別來測量查詢所需的時間。具體步驟如下：</p>
+            <ol>
+                <li>在查詢開始前，調用 <code>Stopwatch.StartNew()</code> 開始計時。</li>
+                <li>執行查詢操作後，立即調用 <code>Stopwatch.Stop()</code> 結束計時。</li>
+                <li>將計算出來的執行時間（以毫秒為單位）存儲在 <code>TempData</code> 中，以便在查詢結果顯示的視圖上展示。</li>
+            </ol>
+
+            <br>
+            <h3>測試結果</h3>
+            <p>當我們使用預設使用者「Guest」(id=777) 來加入商品，資料量相對較小時，在使用 Optimized 的提取方式效能不會很顯著；但若我們利用 <code>Demo/SearchCartByUser?userid=33</code> 來查詢第 33 號使用者的購物車，我們會發現，Optimized 的提取方式遠比原始的提取方式效能高了許多。</p>
+        </div>
+    </div>
+</div>
+
+<br>
+</body>
+</html>
+

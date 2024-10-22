@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Demo";
+}
+@model PersonalWebsite.Models.DemoViewModel
+
+<h2 class="text-success">Amazon Demo</h2>
+<p>You are now user 'Guest' with id 777 <a href="@Url.Action("GetCartItemsNPlusOne", "Demo", new { userId = 777 })">查看我的購物車</a></p>
+
+<div class="tab-content" id="myTabContent">
+    <!-- 購物中心 -->
+    <form asp-action="GetAllProduct" method="post">
+        <div class="input-group mb-3 mt-3">
+            <input type="text" name="ProductName" class="form-control" placeholder="搜尋您要找尋的商品  如 : Laptop, TV..."/>
+            <button type="submit" class="btn btn-primary" style="margin-left: 1rem;">查詢商品</button>
+        </div>
+    </form>
+
+    <div class="row">
+        @if (Model.Products != null && Model.Products.Count > 0)
+        {
+        foreach (var product in Model.Products)
+        {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="https://via.placeholder.com/150" class="card-img-top" alt="商品圖片">
+                <div class="card-body">
+                    <h5 class="card-title">商品名稱: @product.Name</h5>
+                    <p class="card-text">價格: $@product.Price USD</p>
+                    <form asp-action="AddToCart" method="post">
+                        <div class="input-group">
+                        <input type="hidden" name="ProductId" value="@product.Id" />
+                        <input type="hidden" name="UserId" value="777" />
+                        <input type="text" class="form-control" name="Quantity" value="1" />
+                        <button type="submit" class="btn btn-success" style="margin-left: 0.5rem;">加入購物車</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        }
+        }
+        else
+        {
+        <p>目前無商品可顯示。</p>
+        }
+    </div>
+</div>
+

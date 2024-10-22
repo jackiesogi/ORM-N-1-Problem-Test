@@ -1,0 +1,23 @@
+﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+/* Normal Page Background */
+.normal-background {
+    background-color: #f0f0f0; /* 灰色背景 */
+}
+
+/* Home Page Background */
+.home-background {
+    background-color: #f0f8ff; /* 淺藍色背景 */
+}
+
+/* About Page Background */
+.about-background {
+    background-color: #ffefd5; /* 桃色背景 */
+}
+
+/* 其他頁面背景 */
+.contact-background {
+    background-color: #e6e6fa; /* 淺紫色背景 */
+}
+

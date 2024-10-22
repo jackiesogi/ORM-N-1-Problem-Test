@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewData["Title"] - ORM_N+1_Problem_Test</title>
+
+	<!-- Bootstrap CDN -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Font Awesome for icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" integrity="sha512-fzff82+8pzHnwA1mQ0dzz9/E0B+ZRizq08yZfya66INZBz86qKTCt9MLU0NCNIgaMJCgeyhujhasnFUsYMsi0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <!-- Layout CSS -->
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+        <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+        }
+        .content {
+            flex-grow: 1;
+            padding-top: 100px;
+            padding-bottom: 20px;
+        }
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+        }
+        .normal-background {
+            background-color: #f0f0f0;
+        }
+        .fade {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .fade.show {
+            opacity: 1;
+        }
+        </style>
+    </head>
+    <body class="normal-background">
+        <!-- Navigation Bar -->
+        <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">ORM N+1 Problem Test</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/Home">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Demo">Demo</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                My Blog Post
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <li><a class="dropdown-item" href="https://medium.com/@@Jackiesogi/list/linux-294dfd90b92e" target="_blank">Linux</a></li>
+                                <li><a class="dropdown-item" href="https://medium.com/@@Jackiesogi/list/net-backend-81452e5fb508" target="_blank">Back-end</a></li>
+                                <li><a class="dropdown-item" href="https://medium.com/@@Jackiesogi/list/security-0e239040607b" target="_blank">Security</a></li>
+                                <li><a class="dropdown-item" href="https://medium.com/@@Jackiesogi/list/business-f78eb38308d2" target="_blank">Business</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://jackiesogi.com">My Website</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <button id="langToggle" class="btn btn-outline-light btn-lang" aria-label="Toggle Language">
+                                <i class="fas fa-globe"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content area -->
+        <div id="content" class="content container fade">
+            @RenderBody()
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-dark text-white py-4">
+            <div class="container">
+                <div class="row mt-4">
+                    <div class="col-md-12 text-center">
+                        <p class="mb-0">© 2024 Jackie Chen. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                // Add fade-in effect when page loads
+                $('#content').addClass('show');
+
+                // Fade-out effect for the content when navigating away
+                $(document).on('click', 'a', function() {
+                    if($(this).attr('href').startsWith('#') || $(this).attr('href').startsWith('http')) return; // Skip internal links
+                    $('#content').addClass('fade-out');
+                    setTimeout(function() {
+                        $('#content').removeClass('show').addClass('fade');
+                    }, 500); // Match with the CSS transition duration
+                });
+            });
+        </script>
+        @RenderSection("Scripts", required: false)
+    </body>
+</html>
+
