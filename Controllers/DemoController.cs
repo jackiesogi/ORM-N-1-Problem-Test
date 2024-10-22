@@ -9,16 +9,39 @@ public class DemoController : Controller
 {
     private readonly ApplicationDbContext _context;
 
+    // Constructor
     public DemoController(ApplicationDbContext context)
     {
         _context = context;
     }
 
+    // Display the main page including the detailed information of this project
+    public IActionResult Index()
+    {
+        return View("Index");
+    }
+
+    // Display all products on the Amazon page
+    public IActionResult Amazon()
+    {
+        // Search for all available products in database
+        var products = _context.Products.ToList();
+
+        var viewModel = new DemoViewModel
+        {
+            Products = products,
+        };
+
+        return View("Amazon", viewModel);
+    }
+
+    // Send the data (search results and elapsed time) back to the view
     public IActionResult SearchCartByUser(object cartItems = null, string elapsedTime = null)
     {
+        // Save the elapsed time in the ViewBag
         ViewBag.ElapsedTime = elapsedTime;
 
-        // 將查詢結果轉換為 List 以便傳遞到視圖
+        // If the search results are not empty...
         if (cartItems != null)
         {
             var itemsList = cartItems as IEnumerable<dynamic>;
@@ -28,35 +51,12 @@ public class DemoController : Controller
         return View();
     }
 
-    public IActionResult Index()
-    {
-        return View("Index");
-    }
-
-    public IActionResult Amazon()
-    {
-        // Search product by name if ProductName is provided; otherwise, get all products
-        var products = _context.Products.ToList();
-
-        var viewModel = new DemoViewModel
-        {
-            Products = products,
-        };
-
-        Console.WriteLine("Product: " + products);
-
-        return View("Amazon", viewModel);
-    }
-
     public async Task<IActionResult> AddToCart(int userId, int productId, int quantity)
     {
-        // Log the values being processed
-        Console.WriteLine($"Attempting to add to cart - UserId: {userId}, ProductId: {productId}, Quantity: {quantity}");
-
+        // Search for the cart item by user ID and product ID
         var cartItem = await _context.CartItems
             .FirstOrDefaultAsync(ci => ci.UserId == userId && ci.ProductId == productId);
 
-        Console.WriteLine("CartItem: " + cartItem);
         if (cartItem == null)
         {
             cartItem = new CartItem
@@ -78,11 +78,12 @@ public class DemoController : Controller
         return RedirectToAction("Amazon");
     }
 
+    // Search products by a given name
     public async Task<IActionResult> GetAllProduct(string ProductName)
     {
-        // Search product by name if ProductName is provided; otherwise, get all products
         var products = new List<Product>();
 
+        // If the product name is empty, retrieve all products
         if (ProductName == null)
         {
             products = await _context.Products.ToListAsync();
@@ -108,7 +109,7 @@ public class DemoController : Controller
 
     public async Task<IActionResult> GetCartItemsNPlusOne(int userId)
     {
-        var stopwatch = Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();  // Start!
 
         var user = await _context.Users
             .Include(u => u.CartItems)
@@ -121,10 +122,10 @@ public class DemoController : Controller
                 Quantity = ci.Quantity
                 }).ToList();
 
-        stopwatch.Stop();
+        stopwatch.Stop();  // Stop!
         var elapsedTime = stopwatch.ElapsedMilliseconds;
 
-        TempData["ElapsedTimeNPlusOne"] = elapsedTime.ToString(); // 轉換為字串
+        TempData["ElapsedTimeNPlusOne"] = elapsedTime.ToString();
 
         var viewModel = new DemoViewModel
         {
@@ -136,7 +137,7 @@ public class DemoController : Controller
 
     public async Task<IActionResult> GetCartItemsOptimized(int userId)
     {
-        var stopwatch = Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();  // Start!
 
         var cartItems = await _context.CartItems
             .Where(ci => ci.UserId == userId)
@@ -148,10 +149,10 @@ public class DemoController : Controller
                     Quantity = ci.Quantity
                     }).ToListAsync();
 
-        stopwatch.Stop();
+        stopwatch.Stop();  // Stop!
         var elapsedTime = stopwatch.ElapsedMilliseconds;
 
-        TempData["ElapsedTimeOptimized"] = elapsedTime.ToString(); // 轉換為字串
+        TempData["ElapsedTimeOptimized"] = elapsedTime.ToString();
 
         var viewModel = new DemoViewModel
         {
