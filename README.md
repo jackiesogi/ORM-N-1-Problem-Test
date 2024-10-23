@@ -6,6 +6,10 @@
 透過實作簡易的購物系統，研究 ORM 語法造成的 N+1 問題。
 實作兩個 Handler：`GetCartItemNPlusOne()` 及 `GetCartItemOptimized()`，並利用執行時間（毫秒）來比較查詢效率。
 
+### 原始碼位置
+- [GetCartItemNPlusOne()](https://github.com/jackiesogi/ORM-N-1-Problem-Test/blob/master/Controllers/DemoController.cs#L109-L135)
+- [GetCartItemOptimized()](https://github.com/jackiesogi/ORM-N-1-Problem-Test/blob/master/Controllers/DemoController.cs#L137-L162)
+
 ## 在 Ubuntu Linux 手動建置
 
 ### 下載本專案
